@@ -31,3 +31,19 @@ def edf_schedulable(tasks: list[Task]) -> bool:
 def rms_priority_order(tasks: list[Task]) -> list[Task]:
     # Приоритеты RMS: меньший период - выше приоритет (первый в списке — самый высокий).
     return sorted(tasks, key=lambda task: task.t)
+
+
+
+def response_time(task: Task, higher: list[Task]) -> int:
+    # Время отклика по рекуррентной формуле: R = C + Σ ceil(R / Tj) · Cj.
+    # higher — задачи с более высоким приоритетом. Итерация начинается с R = C
+    # и останавливается, когда значение перестало меняться. Если R превысило
+    # дедлайн, возвращается это значение (задача не укладывается).
+    r = task.c
+    while True:
+        r_next = task.c + sum(math.ceil(r / h.t) * h.c for h in higher)
+        if r_next == r:
+            return r
+        if r_next > task.d:
+            return r_next
+        r = r_next
