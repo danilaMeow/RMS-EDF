@@ -49,3 +49,27 @@ def print_tests(tasks) -> None:
     print(f"EDF: U = {u:.3f} {sign} 1 — {edf_text}")
     if any(t.d != t.t for t in tasks):
         print("Внимание: у части задач D ≠ T, для EDF условие U ≤ 1 в этом случае только необходимое.")
+
+
+
+def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
+    parser = argparse.ArgumentParser(description="Анализ планируемости RMS и EDF")
+    parser.add_argument("file", nargs="?", default=DEFAULT_FILE, help="файл задач (.json или .csv)")
+    args = parser.parse_args()
+
+    tasks = load_tasks(args.file)
+    print_table(tasks)
+    print()
+    print_tests(tasks)
+
+    all_ok = all(ok for _, _, ok in response_times(tasks))
+    print("По времени отклика:", "все задачи укладываются в дедлайны" if all_ok else "есть задачи, не укладывающиеся в дедлайн")
+
+    period = hyperperiod(tasks)
+    print(f"\nДиаграмма выполнения по RMS на интервале [0, {period}] (гиперпериод):")
+    print(gantt(tasks, period))
+
+
+if __name__ == "__main__":
+    main()
