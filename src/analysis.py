@@ -47,3 +47,12 @@ def response_time(task: Task, higher: list[Task]) -> int:
         if r_next > task.d:
             return r_next
         r = r_next
+
+def response_times(tasks: list[Task]) -> list[tuple[Task, int, bool]]:
+    # Для каждой задачи (в порядке приоритета) возвращает (задача, R, уложилась ли R ≤ D).
+    ordered = rms_priority_order(tasks)
+    result = []
+    for i, task in enumerate(ordered):
+        r = response_time(task, ordered[:i])
+        result.append((task, r, r <= task.d))
+    return result
