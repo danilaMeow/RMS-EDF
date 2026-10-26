@@ -6,31 +6,17 @@ from model import Task
 
 
 def _row_to_task(row: dict) -> Task:
-    # Превращает словарь с ключами name, C, T, D в задачу.
+    """РџСЂРµРІСЂР°С‰Р°РµС‚ СЃР»РѕРІР°СЂСЊ СЃ РєР»СЋС‡Р°РјРё name, C, T, D РІ Р·Р°РґР°С‡Сѓ."""
     return Task(str(row["name"]), int(row["C"]), int(row["T"]), int(row["D"]))
 
 
 def load_json(path: Path) -> list[Task]:
-    # Читает задачи из JSON: {"tasks": [{"name": ..., "C": ..., "T": ..., "D": ...}]}.
+    """Р§РёС‚Р°РµС‚ Р·Р°РґР°С‡Рё РёР· JSON: {"tasks": [{"name": ..., "C": ..., "T": ..., "D": ...}]}."""
     data = json.loads(path.read_text(encoding="utf-8"))
     return [_row_to_task(row) for row in data["tasks"]]
 
 
 def load_csv(path: Path) -> list[Task]:
-    # Читает задачи из CSV с заголовком name,C,T,D.
+    """Р§РёС‚Р°РµС‚ Р·Р°РґР°С‡Рё РёР· CSV СЃ Р·Р°РіРѕР»РѕРІРєРѕРј name,C,T,D."""
     with path.open(encoding="utf-8", newline="") as f:
         return [_row_to_task(row) for row in csv.DictReader(f)]
-
-
-
-def load_tasks(path: str | Path) -> list[Task]:
-    # Выбирает формат по расширению файла (.json или .csv).
-    path = Path(path)
-    readers = {".json": load_json, ".csv": load_csv}
-    reader = readers.get(path.suffix.lower())
-    if reader is None:
-        raise ValueError(f"Неподдерживаемый формат файла: {path.suffix} (нужен .json или .csv)")
-    tasks = reader(path)
-    if not tasks:
-        raise ValueError("В файле нет ни одной задачи")
-    return tasks
