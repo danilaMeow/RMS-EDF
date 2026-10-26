@@ -20,3 +20,17 @@ def load_csv(path: Path) -> list[Task]:
     # Читает задачи из CSV с заголовком name,C,T,D.
     with path.open(encoding="utf-8", newline="") as f:
         return [_row_to_task(row) for row in csv.DictReader(f)]
+
+
+
+def load_tasks(path: str | Path) -> list[Task]:
+    # Выбирает формат по расширению файла (.json или .csv).
+    path = Path(path)
+    readers = {".json": load_json, ".csv": load_csv}
+    reader = readers.get(path.suffix.lower())
+    if reader is None:
+        raise ValueError(f"Неподдерживаемый формат файла: {path.suffix} (нужен .json или .csv)")
+    tasks = reader(path)
+    if not tasks:
+        raise ValueError("В файле нет ни одной задачи")
+    return tasks
