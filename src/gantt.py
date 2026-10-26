@@ -32,3 +32,26 @@ def simulate_rms(tasks: list[Task], interval: int) -> dict[str, list[bool]]:
         if job[3] == 0:
             ready.remove(job)
     return timeline
+
+
+
+def gantt(tasks: list[Task], interval: int) -> str:
+    # Текстовая временная диаграмма RMS на интервале [0, interval].
+    # Строки идут в порядке приоритета (сверху — самый высокий),
+    # █ — задача выполняется, · — не выполняется.
+
+    timeline = simulate_rms(tasks, interval)
+    width = max(len(name) for name in timeline)
+
+    # Шкала времени: отметка каждые 5 мс
+    scale = [" "] * (interval + 2)  # запас под многозначную последнюю отметку
+    for tick in range(0, interval + 1, 5):
+        for k, ch in enumerate(str(tick)):
+            if tick + k < len(scale):
+                scale[tick + k] = ch
+    lines = [" " * width + " |" + "".join(scale)]
+
+    for name, ticks in timeline.items():
+        row = "".join("█" if busy else "·" for busy in ticks)
+        lines.append(f"{name.ljust(width)} |{row}")
+    return "\n".join(lines)
